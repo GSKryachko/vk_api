@@ -1,6 +1,7 @@
 import json
 
 import requests
+import requests.exceptions
 
 
 def get_followers(user_id: int, count: int, token: str):
@@ -8,7 +9,11 @@ def get_followers(user_id: int, count: int, token: str):
             'count': count,
             'fields': 'screen_name',
             'access_token': token}
-    r = requests.post('https://api.vk.com/method/users.getFollowers', data)
+    try:
+        r = requests.post('https://api.vk.com/method/users.getFollowers', data)
+    except requests.exceptions.ConnectionError:
+        print('Something gone wrong, check your internet connection')
+        exit()
     try:
         return json.loads(r.text)['response']['items']
     except KeyError:
@@ -18,4 +23,6 @@ def get_followers(user_id: int, count: int, token: str):
 
 def print_followers(followers):
     for follower in followers:
-        print('{:20} {:20} vk.com/{}'.format(follower['first_name'], follower['last_name'], follower['uid']))
+        print('{:20} {:20} vk.com/{}'.format(follower['first_name'],
+                                             follower['last_name'],
+                                             follower['uid']))
